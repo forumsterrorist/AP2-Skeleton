@@ -1,3 +1,4 @@
+package assignment2;
 public class List<E extends Comparable<E>> implements ListInterface<E> {
 
     private class Node {
@@ -16,6 +17,10 @@ public class List<E extends Comparable<E>> implements ListInterface<E> {
         }
 
     }
+    
+    List() {
+    	init();
+    }
 
     @Override
     public boolean isEmpty() {
@@ -23,7 +28,7 @@ public class List<E extends Comparable<E>> implements ListInterface<E> {
     }
 
     @Override
-    public ListInterface<E> init() {
+    public ListInterface<E> init() {    	
         return null;
     }
 

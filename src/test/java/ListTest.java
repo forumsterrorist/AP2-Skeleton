@@ -1,4 +1,7 @@
 import org.junit.*;
+
+import assignment2.List;
+
 import static org.junit.Assert.*;
 
 /**

@@ -1,3 +1,4 @@
+package assignment2;
 /** @elements
  *    objects of type E
  *  @structure
