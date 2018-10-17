@@ -1,194 +1,70 @@
 package assignment2;
 
-public class Set<E> implements SetInterface {
-	
-	private List<E> current;
-	private int top;
-	
-	Set<E>() {
-		init(E e);
-	}
-	
-	Set(Identifier input) {
-		init();
-		add(input);
-	}
-	
-	Set(Set<E> input) {
-		this.current = input.current;
-	}
-	
-	
 
-	@Override
-	public void init(E e) {
-		current = new List<e>;
-	}
+public class Set<E extends Comparable <E>> implements SetInterface<E> {
+	private List<E> list;
 	
+	public Set() {
+		list = new List<E>();
+	}
+
+	public void init() {
+		list = new List<E>();
+		return;
+	}
+
+	public void add(E d) {		
+		list.insert(d);
+		return;
+	}
+
+	public void remove(E toRemove) {
+		list.find(toRemove);
+		list.remove();
+	}
+
+	public E retrieve() {
+		return list.retrieve();
+	}
+
 	public boolean isEmpty() {
-		if (top == -1) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	private void grow() {
-		Identifier[] temp = new Identifier[set.length + 1];
-		
-		for (int i = 0; i < set.length; i++) {
-			temp[i] = set[i];
-		}
-		
-		set = temp;
+		return list.isEmpty();
 	}
 
-	@Override
-	public void add(Identifier input) {
-			if (this.contains(input)) {
-				return;
-			} else if (top == set.length - 1) {
-				grow();
-			}
-			top++;
-			set[top] = input;
+	public boolean isInList(E element) {
+		return list.find(element);
 	}
 
-	@Override
-	public Identifier get() {
-		return set[top];
+	public SetInterface<E> union(SetInterface<E> set1) {
+		return null;
 	}
 
-	@Override
-	public void remove(Identifier input) {
-		Identifier[] temp = new Identifier[set.length - 1];
-		
-		int counter = 0;
-		
-		for (int i = 0; i < temp.length; i++) {
-			if (set[i].equals(input)) {
-				continue;
-			} else {
-				temp[counter] = set[i];
-				counter++;
-			}
-		}
-		
-		set = temp;
-		top--;
+	public SetInterface<E> intersection(SetInterface<E> set1) {
+		return null;
 	}
 
-	@Override
-	public int size() {
-		return set.length;
+	public SetInterface<E> complement(SetInterface<E> set1) {
+		return null;
 	}
 
-	@Override
-	public boolean equals(Set input) {
-		Set temp = new Set(input);
-		Identifier compare;
-		
-		for (int i = 0; i < top; i++) {
-			compare = temp.get();
-			temp.remove(compare);
-			if (!compare.equals(set[i])) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-
-	@Override
-	public boolean contains(Identifier input) {
-		
-		for (int i = 0; i < set.length; i++) {
-			if (set[i] == null) {
-				continue;
-			} else if (set[i].equals(input)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	@Override
-	public SetInterface union(Set input) {
-		SetInterface output = new Set();
-		
-		for (Identifier i : set) {
-			output.add(i);
-		}
-		
-		for (Identifier j : input.set) {
-			output.add(j);
-		}
-		
-		return output;
-	}
-
-	@Override
-	public SetInterface intersection(Set input) {
-		SetInterface output = new Set();
-		
-		for (Identifier i : set) {
-			if (input.contains(i)) {
-				output.add(i);
-			}
-		}
-		
-		return output;
-	}
-
-	@Override
-	public SetInterface difference(Set input) {
-		SetInterface output = new Set();
-		
-		for (Identifier i : set) {
-			if (!input.contains(i)) {
-				output.add(i);
-			}
-		}
-		
-		return output;
-	}
-
-	@Override
-	public SetInterface symmetricDifference(Set input) {
-		SetInterface output = new Set();
-		
-		for (Identifier i : set) {
-			if (!input.contains(i)) {
-				output.add(i);;
-			}
-		}
-		
-		for (Identifier i : input.set) {
-			if (!this.contains(i)) {
-				output.add(i);
-			} 
-		}
-		
-		return output;
+	public SetInterface<E> symmetricDifference(SetInterface<E> set1) {
+		return null;
 	}
 	
 	public String toString() {
-		StringBuilder output = new StringBuilder(" ");
+		StringBuilder output = new StringBuilder("");
+		boolean end;
 		
-		if (isEmpty()) {
+		end = list.goToFirst();
+		if (end == false) {
 			return output.toString();
-		} else if (top == 0) {
-			output.append(set[0].get());
+		}
+		while (end) {
+			output.append(this.retrieve().toString());
 			output.append(' ');
-			return output.toString();
+			end = list.goToNext();
 		}
 		
-		for (Identifier i : set) {
-			output.append(i.get());
-			output.append(" ");
-		}
-		
-		return output.toString();
+		return output.toString().substring(0, output.toString().length() - 1);
 	}
 }

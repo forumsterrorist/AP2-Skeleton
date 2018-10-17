@@ -9,12 +9,13 @@ import java.math.BigInteger;
 public class Main {
 	
 	PrintStream out;
-	//HashMap <Identifier, Set<BigInteger>> storage;
+	HashMap <String, SetInterface<BigInteger>> storage;
 
     private void start() {
         @SuppressWarnings("resource")
 		Scanner input = new Scanner(System.in);
         out = new PrintStream(System.out);
+        storage = new HashMap<>();
         
         while (true) {
         	try {
@@ -28,6 +29,7 @@ public class Main {
     private void statement(String line) throws APException {
 		Scanner in = new Scanner(line);
 		in.useDelimiter("");
+		HashMap <String, SetInterface<BigInteger>> tempStorage = new HashMap<>();
 		
 		if (nextCharIs(in, '/')) {
 			in.close();
@@ -36,7 +38,7 @@ public class Main {
 			in.skip(Pattern.quote("?"));
 			printStatement(in);
 		} else if (nextCharIsLetter(in)) {
-			assignment(in);
+			tempStorage = assignment(in);
 		} else {
 			in.close();
 			throw new APException("error no statement");
@@ -45,76 +47,87 @@ public class Main {
 		if (in.hasNext()) {
 			in.close();
 			throw new APException("error no end of line");
+		} else {
+			storage.putAll(tempStorage);
 		}
 	}
 
-	private void assignment(Scanner in) throws APException {
-		Identifier temp = new Identifier(nextChar(in));
+	private HashMap<String, SetInterface<BigInteger>> assignment(Scanner in) throws APException {
+		Identifier identifier = new Identifier(nextChar(in));
+		SetInterface<BigInteger> tempset = new Set<>();
+		HashMap<String, SetInterface<BigInteger>> temp = new HashMap<>();
 		
 		while (nextCharIsLetter(in) || nextCharIsDigit(in)) {
-				temp.add(nextChar(in));
+				identifier.add(nextChar(in));
 		}
 		
 		if (!nextCharIs(in, '=')) {
 			throw new APException("error missing equals");
 		} else {
 			in.skip(Pattern.quote("="));
-			try {
-				expression(in);
-			} catch (APException e) {
-				out.println(e.getMessage());
-			}
+			tempset = expression(in);
+			temp.put(identifier.get(), tempset);
 		}
+		
+		return temp;
 	}
 
-	private void expression(Scanner in) throws APException {
-		term(in);
+	private SetInterface<BigInteger> expression(Scanner in) throws APException {
+		SetInterface<BigInteger> resultSet = new Set<>();
+		resultSet = term(in);
 		
 		while (in.hasNext()) {
 			if (nextCharIs(in,'+')) {
 				in.skip(Pattern.quote("+"));
-				term(in);
+				resultSet = resultSet.union(term(in));
 			} else if (nextCharIs(in, '|')) {
 				in.skip(Pattern.quote("|"));
-				term(in);
+				resultSet = resultSet.symmetricDifference(term(in));
 			} else if (nextCharIs(in, '-')) {
 				in.skip(Pattern.quote("-"));
-				term(in);
+				resultSet = resultSet.complement(term(in));
 			} else if (nextCharIs(in, ')')) {
-				return;
+				return resultSet;
 			} else {
 				throw new APException("error missing additive operator");
 			}
 		}
+		
+		return resultSet;
 	}
 
-	private void term(Scanner in) throws APException {
-		factor(in);
+	private SetInterface<BigInteger> term(Scanner in) throws APException {
+		SetInterface<BigInteger> set;
+		set = factor(in);
 		
 		while (in.hasNext()) {
 			if (nextCharIs(in, '*')) {
 				in.skip(Pattern.quote("*"));
-				factor(in);
+				set = set.intersection(factor(in));
 			} else {
-				return;
+				return set;
 			}
 		}
+		
+		return set;
 	}
 
-	private void factor(Scanner in) throws APException {
+	private SetInterface<BigInteger> factor(Scanner in) throws APException {
+		SetInterface<BigInteger> set;
+		
 		if (nextCharIsLetter(in)) {
-			getIdentifier(in);
-			return;
+			set = getIdentifier(in);
+			return set;
 		} else if (nextCharIs(in, '{')) {
 			in.skip(Pattern.quote("{"));
-			readSet(in);
-			return;
+			set = readSet(in);
+			return set;
 		} else if (nextCharIs(in, '(')) {
 			in.skip(Pattern.quote("("));
-			expression(in);
+			set = expression(in);
 			if (nextCharIs(in, ')')) {
 				in.skip(Pattern.quote(")"));
-				return;
+				return set;
 			} else {
 				throw new APException("error missing parenthesis");
 			}
@@ -123,7 +136,8 @@ public class Main {
 		}
 	}
 
-	private void readSet(Scanner in) throws APException {
+	private Set<BigInteger> readSet(Scanner in) throws APException {
+		Set<BigInteger> output = new Set<>();
 		BigInteger number;
 		StringBuilder temp = new StringBuilder("");
 		
@@ -133,7 +147,7 @@ public class Main {
 					temp.append("" + nextChar(in));
 				}
 				number = new BigInteger(temp.toString());
-				out.println(number.toString());
+				output.add(number);
 				temp = new StringBuilder("");
 			} else if (nextCharIs(in, ',')) {
 				in.skip(Pattern.quote(","));
@@ -145,13 +159,13 @@ public class Main {
 		
 		if (nextCharIs(in, '}')) {
 			in.skip(Pattern.quote("}"));
-			return;
+			return output;
 		} else {
 			throw new APException("error missing closing bracket");
 		}
 	}
 
-	private void getIdentifier(Scanner in) throws APException {
+	private SetInterface<BigInteger> getIdentifier(Scanner in) throws APException {
 		Identifier temp;
 		
 		if (!nextCharIsLetter(in)) {
@@ -164,18 +178,25 @@ public class Main {
 			temp.add(nextChar(in));
 		}
 		
-		return;
-	}
-
-	private void printStatement(Scanner in) throws APException {
-		if (!in.hasNext()) {
-			throw new APException("error missing input");
+		if (storage.containsKey(temp.get())) {
+			return storage.get(temp.get());
 		} else {
-			expression(in);
+			throw new APException("error undefined variable");
 		}
 	}
 
-
+	private void printStatement(Scanner in) throws APException {
+		String output;
+		SetInterface<BigInteger> result;
+		
+		if (!in.hasNext()) {
+			throw new APException("error missing input");
+		} else {
+			result = expression(in);
+			output = result.toString();
+			out.println(output);
+		}
+	}
 
 	char nextChar (Scanner in) {
     	return in.next().charAt(0); 

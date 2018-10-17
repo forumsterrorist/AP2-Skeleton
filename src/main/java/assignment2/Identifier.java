@@ -1,5 +1,7 @@
 package assignment2;
 
+import java.util.Objects;
+
 public class Identifier implements IdentifierInterface {
 	private String identifierString;
 	
@@ -36,7 +38,11 @@ public class Identifier implements IdentifierInterface {
 		else {
 			return false;
 		}
-	} 
+	}
+	
+	public int hashCode() {
+		return 1;
+	}
 
 	@Override
 	public int size() {
