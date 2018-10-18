@@ -1,7 +1,5 @@
 package assignment2;
 
-import java.util.Objects;
-
 public class Identifier implements IdentifierInterface {
 	private String identifierString;
 	
@@ -30,8 +28,8 @@ public class Identifier implements IdentifierInterface {
 	}
 
 	@Override
-	public boolean equals(Identifier input) {
-		String TempIdentifierString = input.get(); 
+	public boolean equals(Object input) {
+		String TempIdentifierString = ((Identifier) input).get(); 
 		if(TempIdentifierString.equals(identifierString)) {
 			return true;
 		}
@@ -41,7 +39,7 @@ public class Identifier implements IdentifierInterface {
 	}
 	
 	public int hashCode() {
-		return 1;
+		return identifierString.hashCode();
 	}
 
 	@Override

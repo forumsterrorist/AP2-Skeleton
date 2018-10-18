@@ -5,9 +5,8 @@ public class List<E extends Comparable<E>> implements ListInterface<E> {
 	private Node current;
 	private int elementCount;
 	
-	List(){
-		current = null;
-		elementCount = 0;
+	public List(){
+		init();
 	}
 	
     private class Node {
@@ -36,50 +35,44 @@ public class List<E extends Comparable<E>> implements ListInterface<E> {
 
     @Override
     public ListInterface<E> init() {
-    	ListInterface<E> output = new List<E>();
-    	
-        return output;
+    	current = null;
+		elementCount = 0;
+		
+        return this;
     }
 
 
     @Override
     public ListInterface<E> insert(E d) {
-    	if (size() == 0) {
-	    	current = new Node(d);
-	    	elementCount++;
-	    	return this;
+    	if (!this.goToFirst()) {
+    		current = new Node(d);
+        	elementCount++;
+        	return this;
+    	} else {
+    		while (d.compareTo(current.data) > 0) {
+    			if (!this.goToNext()) {
+    				Node node = new Node(d, current, null);
+    				current.next = node;
+    				current = node;
+    				elementCount++;
+    				return this;
+    			}
+    		}
+    		if (current.prior == null) {
+    			Node node = new Node(d, null, current);
+    			current.prior = node;
+    			current = node;
+    			elementCount++;
+    			return this; 
+    		} else {
+    			Node node = new Node(d, current.prior, current);
+    			current.prior.next = node;
+    			current.prior = node;
+    			current = node;
+    			elementCount++;
+    			return this;
+    		}
     	}
-    /*	goToFirst();
-    	while(d.compareTo(current.data) > 0 && goToNext() == true) {
-    	}
-    	if (current.prior == null) {
-    		Node newNode = new Node(d, null, current);
-    		current.prior = newNode;
-    		current = newNode;
-    		elementCount++;
-            return this;
-    	}
-    	else if(current.next == null) {
-    		Node newNode = new Node(d, current, null);
-    		current.next = newNode;
-    		current = newNode;
-    		elementCount++;
-            return this;
-    	}
-    	else {
-    		Node newNode = new Node(d, current, current.next);
-    		current = newNode;
-    		current.prior.next = current;
-    		current.next.prior = current;
-    		elementCount++;
-            return this;
-    	}*/
-    	goToLast();
-    	Node newNode = new Node(d, current, null);
-		current.next = newNode;
-		current = newNode;
-		elementCount++;
-        return this;
     }
     
     @Override
@@ -122,21 +115,16 @@ public class List<E extends Comparable<E>> implements ListInterface<E> {
 
     @Override
     public boolean find(E d) {
-    	if (isEmpty() == true){
-			return false;
-		}
-    	goToFirst();
-    	while (d != current.data && goToNext() == true) {
-    	}
-    	if (d == current.data) {
+    	if (!goToFirst()) {
+    		return false;
+    	} else {
+    		while (!current.data.equals(d)) {
+    			if (!goToNext()) {
+    				return false;
+    			}
+    		}
     		return true;
     	}
-    	if (goToFirst() == true && d.compareTo(current.data) < 0) {
-    		return false;
-    	}
-    	while (d.compareTo(current.data) > 0  && goToNext() == true) {
-    	}
-    	return false;
     }
 
     @Override
@@ -165,7 +153,7 @@ public class List<E extends Comparable<E>> implements ListInterface<E> {
 
     @Override
     public boolean goToNext() {
-    	if (current.next != null && size() > 0  ) {
+    	if (current != null && current.next != null && size() > 0 ) {
     		current = current.next;
     		return true;
     	}
@@ -176,7 +164,7 @@ public class List<E extends Comparable<E>> implements ListInterface<E> {
 
     @Override
     public boolean goToPrevious() {
-    	if (current.prior != null && size() > 0) {
+    	if (current != null && current.prior != null && size() > 0) {
     		current = current.prior;
     		return true;
     	}	

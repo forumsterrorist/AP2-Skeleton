@@ -37,7 +37,7 @@ public interface IdentifierInterface {
 	 * 	POST - The character at the given index is returned.
 	 */
 	
-	boolean equals(Identifier input);
+	boolean equals(Object input);
 	/* PRE - 
 	 * POST - Returns true if both Identifiers contain the same sequence of characters, and false otherwise.
 	 */

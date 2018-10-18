@@ -2,10 +2,14 @@ package assignment2;
 
 
 public class Set<E extends Comparable <E>> implements SetInterface<E> {
-	private List<E> list;
+	private ListInterface<E> list;
 	
-	public Set() {
-		list = new List<E>();
+	Set() {
+		init();
+	}
+	
+	Set(Set<E> set) {
+		list = set.list.copy();
 	}
 
 	public void init() {
@@ -13,14 +17,22 @@ public class Set<E extends Comparable <E>> implements SetInterface<E> {
 		return;
 	}
 
-	public void add(E d) {		
-		list.insert(d);
-		return;
+	public void add(E d) {
+		if (this.isInList(d)) {
+			return;
+		} else {
+			list.insert(d);
+			return;
+		}
 	}
 
 	public void remove(E toRemove) {
-		list.find(toRemove);
-		list.remove();
+		if (!this.isInList(toRemove)) {
+			return;
+		} else {
+			list.find(toRemove);
+			list.remove();
+		}
 	}
 
 	public E retrieve() {
@@ -32,23 +44,60 @@ public class Set<E extends Comparable <E>> implements SetInterface<E> {
 	}
 
 	public boolean isInList(E element) {
-		return list.find(element);
+			return list.find(element);
 	}
 
-	public SetInterface<E> union(SetInterface<E> set1) {
-		return null;
+	public SetInterface<E> union(SetInterface<E> set2) {
+		Set<E> output = new Set<E>((Set<E>) set2);
+		E temp;
+		
+		if (this.list.goToFirst()) {
+			do {
+				temp = this.list.retrieve();
+				output.add(temp);
+			} while (this.list.goToNext());
+		}
+		
+		return output;
 	}
 
-	public SetInterface<E> intersection(SetInterface<E> set1) {
-		return null;
+	public SetInterface<E> intersection(SetInterface<E> set2) {
+		Set<E> output = new Set<>();
+		Set<E> copyOfSet2 = new Set<>((Set<E>) set2);
+		E temp;
+		
+		while(!copyOfSet2.isEmpty()) {
+			temp = copyOfSet2.retrieve();
+			if (this.isInList(temp)) {
+				output.add(temp);
+			}
+			copyOfSet2.remove(temp);
+		}
+		
+		return output;
 	}
 
-	public SetInterface<E> complement(SetInterface<E> set1) {
-		return null;
+	public SetInterface<E> complement(SetInterface<E> set2) {
+		Set<E> output = new Set<>(this);
+		Set<E> copyOfSet2 = new Set<>((Set<E>) set2);
+		E temp;
+		
+		while(!copyOfSet2.isEmpty()) {
+			temp = copyOfSet2.retrieve();
+			if (output.isInList(temp)) {
+				output.remove(temp);
+			}
+			copyOfSet2.remove(temp);
+		}
+		
+		return output;
 	}
 
-	public SetInterface<E> symmetricDifference(SetInterface<E> set1) {
-		return null;
+	public SetInterface<E> symmetricDifference(SetInterface<E> set2) {
+		SetInterface<E> output = this.complement(set2);
+		output = output.union(set2.complement(this));
+		
+		return output;
 	}
 	
 	public String toString() {

@@ -17,9 +17,11 @@ public class Main {
         out = new PrintStream(System.out);
         storage = new HashMap<>();
         
-        while (true) {
+        while (input.hasNext()) {
         	try {
-				statement(input.nextLine().replaceAll("\\s+", ""));
+        		if (input.hasNextLine()) {
+        			statement(input.nextLine().replaceAll("\\s+", ""));
+        		}
 			} catch (APException e) {
 				out.println(e.getMessage());;
 			}

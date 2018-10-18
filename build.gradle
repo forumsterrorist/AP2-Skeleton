@@ -7,7 +7,7 @@ apply plugin: 'eclipse'
 apply plugin: 'application'
 
 sourceCompatibility = 1.8
-mainClassName = "Main"
+mainClassName = "assignment2.Main"
 
 repositories {
     mavenCentral()
