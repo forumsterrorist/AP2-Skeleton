@@ -17,10 +17,11 @@ public class Main {
         out = new PrintStream(System.out);
         storage = new HashMap<>();
         
-        while (input.hasNext()) {
+        while (input.hasNextLine()) {
         	try {
         		if (input.hasNextLine()) {
         			statement(input.nextLine().replaceAll("\\s+", ""));
+        			statement(input.nextLine());
         		}
 			} catch (APException e) {
 				out.println(e.getMessage());;
@@ -32,6 +33,8 @@ public class Main {
 		Scanner in = new Scanner(line);
 		in.useDelimiter("");
 		HashMap <String, SetInterface<BigInteger>> tempStorage = new HashMap<>();
+		
+		skipSpaces(in);
 		
 		if (nextCharIs(in, '/')) {
 			in.close();
@@ -63,6 +66,8 @@ public class Main {
 				identifier.add(nextChar(in));
 		}
 		
+		skipSpaces(in);
+		
 		if (!nextCharIs(in, '=')) {
 			throw new APException("error missing equals");
 		} else {
@@ -78,7 +83,10 @@ public class Main {
 		SetInterface<BigInteger> resultSet = new Set<>();
 		resultSet = term(in);
 		
+		skipSpaces(in);
+		
 		while (in.hasNext()) {
+			skipSpaces(in);
 			if (nextCharIs(in,'+')) {
 				in.skip(Pattern.quote("+"));
 				resultSet = resultSet.union(term(in));
@@ -102,7 +110,10 @@ public class Main {
 		SetInterface<BigInteger> set;
 		set = factor(in);
 		
+		skipSpaces(in);
+		
 		while (in.hasNext()) {
+			skipSpaces(in);
 			if (nextCharIs(in, '*')) {
 				in.skip(Pattern.quote("*"));
 				set = set.intersection(factor(in));
@@ -116,6 +127,8 @@ public class Main {
 
 	private SetInterface<BigInteger> factor(Scanner in) throws APException {
 		SetInterface<BigInteger> set;
+		
+		skipSpaces(in);
 		
 		if (nextCharIsLetter(in)) {
 			set = getIdentifier(in);
@@ -141,29 +154,72 @@ public class Main {
 	private Set<BigInteger> readSet(Scanner in) throws APException {
 		Set<BigInteger> output = new Set<>();
 		BigInteger number;
-		StringBuilder temp = new StringBuilder("");
+		boolean firstCharacter = true;
+		boolean expectingNumber = true;;
+		
+		skipSpaces(in);
 		
 		while (nextCharIsDigit(in) || nextCharIs(in, ',')) {
 			if (nextCharIsDigit(in)) {
-				while (nextCharIsDigit(in)) {
-					temp.append("" + nextChar(in));
-				}
-				number = new BigInteger(temp.toString());
+				firstCharacter = false;
+				expectingNumber = false;
+				number = readNumber(in);
 				output.add(number);
-				temp = new StringBuilder("");
 			} else if (nextCharIs(in, ',')) {
+				if (firstCharacter || expectingNumber) {
+					throw new APException("error invalid set");
+				} else {
+					expectingNumber = true;
+				}
 				in.skip(Pattern.quote(","));
+				skipSpaces(in);
 				continue;
 			} else {
 				throw new APException("error invalid set");
 			}
 		}
 		
+		skipSpaces(in);
+		if (output.isEmpty()) {
+			expectingNumber = false;
+		}
+		
 		if (nextCharIs(in, '}')) {
+			if (expectingNumber) {
+				throw new APException("error expecting number");
+			}
 			in.skip(Pattern.quote("}"));
 			return output;
 		} else {
 			throw new APException("error missing closing bracket");
+		}
+	}
+
+	private BigInteger readNumber(Scanner in) throws APException {
+		BigInteger output;
+		StringBuilder temp = new StringBuilder("");
+		boolean zero = false;
+		
+		if (nextCharIs(in, '0')) {
+			zero = true;
+			temp.append("" + nextChar(in));
+		}
+		
+		while (nextCharIsDigit(in)) {
+			if (zero) {
+				throw new APException("error leading zero");
+			}
+			temp.append("" + nextChar(in));
+		}
+		
+		output = new BigInteger(temp.toString());
+		
+		skipSpaces(in);
+		
+		if (nextCharIs(in, ',') || nextCharIs(in, '}')) {
+			return output;
+		} else {
+			throw new APException("error invalid number");
 		}
 	}
 
@@ -180,10 +236,18 @@ public class Main {
 			temp.add(nextChar(in));
 		}
 		
+		skipSpaces(in);
+		
 		if (storage.containsKey(temp.get())) {
 			return storage.get(temp.get());
 		} else {
 			throw new APException("error undefined variable");
+		}
+	}
+
+	private void skipSpaces(Scanner in) {
+		while (nextCharIs(in, ' ')) {
+			in.skip(Pattern.quote(" "));
 		}
 	}
 
@@ -196,6 +260,9 @@ public class Main {
 		} else {
 			result = expression(in);
 			output = result.toString();
+			if (in.hasNext()) {
+				throw new APException("error no end of line");
+			}
 			out.println(output);
 		}
 	}
